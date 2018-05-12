@@ -81,3 +81,18 @@
 //
 //    return 0;
 //}
+
+
+
+
+//template<typename ARG>
+//void asd(std::ostream& stream)
+//{
+//    stream << typeid(ARG).name();
+//}
+//std::ofstream stream("types.txt");
+//asd<float>(stream);
+//asd<int>(stream);
+//asd<double>(stream);
+//asd<char>(stream);
+//stream.close();

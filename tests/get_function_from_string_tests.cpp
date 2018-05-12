@@ -6,10 +6,14 @@
 
 TEST_CASE("Function works on Windows", "[windows-end-to-end]" )
 {
-    std::string function_str = "2 * x";
-    auto function = GetFunctionFromString::get_function_from_string<double, double, 1>(function_str);
+    FunctionFromStringSettings settings;
+    settings.RET_TYPE = "double";
+    settings.ARG_TYPE = "double";
+    settings.DIM = "1";
+    GetFunctionFromString::set_settings(settings);
 
-//    GetFunctionFromString::Settings = FunctionFromStringSettings{};
+    std::string function_str = "2 * arg[0]";
+    auto function = GetFunctionFromString::get_function_from_string<double, double, 1>(function_str);
 
     REQUIRE(function(std::array<double, 1>{0}) == 0);
     REQUIRE(function(std::array<double, 1>{1}) == 1);
