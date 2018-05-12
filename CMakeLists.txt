@@ -8,5 +8,5 @@ set(SOURCE_FILES
         get_function_from_string.h
         src/get_function_from_string_impl.cpp
         src/get_function_from_string_impl.h
-        src/utility.h)
+        src/utility.h src/function_linux.h src/function_win.h)
 add_library(FunctionFromString ${SOURCE_FILES})

@@ -7,8 +7,9 @@
 #include <fstream>
 #include <array>
 
-//#include <dlfcn.h>
-
+#ifdef __linux__
+#include <dlfcn.h>
+#endif
 
 class GetFunctionFromStringImpl
 {
@@ -62,14 +63,35 @@ void GetFunctionFromStringImpl::create_source_file(const std::string& body)
 template<typename RET_TYPE, typename ARG_TYPE, size_t DIM>
 std::function<RET_TYPE(std::array<ARG_TYPE, DIM>)> GetFunctionFromStringImpl::get_function_from_string(const std::string& str)
 {
-//#ifdef _WIN32
-//#elif __linux__
-//#endif
+    std::function<RET_TYPE(std::array<ARG_TYPE, DIM>)> function;
+
     create_source_file(str);
     system((Settings.command + " " + Settings.function_source_filename).c_str());
 
+#ifdef _WIN32
 
-    return std::function<RET_TYPE(std::array<ARG_TYPE, DIM>)>();
+#elif __linux__
+    void *handle;
+    char *error;
+    handle = dlopen ("/home/oleg/MyProjects/FunctionFromString/tests/build/libFunction.so", RTLD_LAZY);
+    if (!handle)
+    {
+        fprintf (stderr, "%s\n", dlerror());
+        exit(1);
+    }
+    dlerror();    /* Clear any existing error */
+    auto function_from_so =  (double(*)(double)) dlsym(handle, "_Z3fund");
+    if ((error = dlerror()) != NULL)
+    {
+        fprintf (stderr, "%s\n", error);
+        exit(1);
+    }
+    dlclose(handle);
+    function = std::function<RET_TYPE(std::array<ARG_TYPE, DIM>)>(&function_from_so);
+//    function  = static_cast<std::function<RET_TYPE(std::array<ARG_TYPE, DIM>)>>(*function_from_so);
+#endif
+
+    return function;
 }
 
 FunctionFromStringSettings GetFunctionFromStringImpl::Settings;
