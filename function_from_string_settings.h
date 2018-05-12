@@ -35,11 +35,11 @@ struct FunctionFromStringSettings
             "#include <functional>\n"
             "#include <cmath>\n"
             "\n"
-            "extern RET_TYPE fun(const std::array<ARG_TYPE, DIM>& arg)\n"
+            "extern RET_TYPE function(const std::array<ARG_TYPE, DIM>& arg)\n"
             "{\n"
             "    return BODY;\n"
-            "}"
-        command = "\"gcc -std=c++17 -shared -o libFunction.so -fPIC ";
+            "}";
+        command = "gcc -std=c++17 -shared -o libFunction.so -fPIC ";
         function_header = "function_win.h";
 #endif
     }

@@ -1,14 +1,16 @@
 #pragma once
 #include "../function_from_string_settings.h"
 #include "utility.h"
-
 #include <functional>
 #include <iostream>
 #include <fstream>
 #include <array>
 
-#ifdef __linux__
+#ifdef _WIN32
+#include "function_win.h"
+#elif __linux__
 #include <dlfcn.h>
+#include "function_linux.h"
 #endif
 
 class GetFunctionFromStringImpl
@@ -65,29 +67,31 @@ std::function<RET_TYPE(std::array<ARG_TYPE, DIM>)> GetFunctionFromStringImpl::ge
 {
     std::function<RET_TYPE(std::array<ARG_TYPE, DIM>)> function;
 
-    create_source_file(str);
+    create_source_file<RET_TYPE, ARG_TYPE, DIM>(str);
     system((Settings.command + " " + Settings.function_source_filename).c_str());
 
 #ifdef _WIN32
-
+    //TODO: implement this
 #elif __linux__
     void *handle;
     char *error;
-    handle = dlopen ("/home/oleg/MyProjects/FunctionFromString/tests/build/libFunction.so", RTLD_LAZY);
+    handle = dlopen ("/home/oleg/MyProjects/math-function-from-string/tests/build/libFunction.so", RTLD_LAZY);
     if (!handle)
     {
         fprintf (stderr, "%s\n", dlerror());
         exit(1);
     }
     dlerror();    /* Clear any existing error */
-    auto function_from_so =  (double(*)(double)) dlsym(handle, "_Z3fund");
+    auto function_from_so = (double(*)(double)) dlsym(handle, "_Z8functionRKSt5arrayIdLm1EE"); // (RET_TYPE(std::array<ARG_TYPE, DIM>))
     if ((error = dlerror()) != NULL)
     {
         fprintf (stderr, "%s\n", error);
         exit(1);
     }
     dlclose(handle);
-    function = std::function<RET_TYPE(std::array<ARG_TYPE, DIM>)>(&function_from_so);
+    std::cout << function_from_so(2.0);
+//    auto function1 = std::function<double(double)>(&function_from_so);
+//    function = std::function<RET_TYPE(std::array<ARG_TYPE, DIM>)>(&function_from_so);
 //    function  = static_cast<std::function<RET_TYPE(std::array<ARG_TYPE, DIM>)>>(*function_from_so);
 #endif
 
