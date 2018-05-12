@@ -1,6 +1,8 @@
 ## Getting started
 This is a C++ library for creating a compiled (mathematical) function from a string. 
 
+[![TravisCI](https://img.shields.io/travis/USER/REPO.svg)](https://travis-ci.org/oyyablokov/math-function-from-string)
+
 ## Usage
 Let's say you want to have a compiled "sin(x0 + x1)" function. In order to achieve this, do the following:
 1. Include this header into your c++ file:
