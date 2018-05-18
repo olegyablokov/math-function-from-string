@@ -6,7 +6,6 @@ struct FunctionFromStringSettings
 {
     std::string command;
     std::string function_source_filename;
-    std::string function_header;
     std::string function_source_code;
     std::string RET_TYPE;           /**< Initialize it explicitly if compilation fails. */
     std::string ARG_TYPE;           /**< Initialize it explicitly if compilation fails. */
@@ -35,12 +34,19 @@ struct FunctionFromStringSettings
             "#include <functional>\n"
             "#include <cmath>\n"
             "\n"
-            "extern RET_TYPE function(const std::array<ARG_TYPE, DIM>& arg)\n"
+            "#ifdef __cplusplus\n"
+            "extern \"C\" {\n"
+            "#endif\n"
+            ""
+            "RET_TYPE function(const std::array<ARG_TYPE, DIM>& arg)\n"
             "{\n"
             "    return BODY;\n"
-            "}";
-        command = "gcc -std=c++17 -shared -o libFunction.so -fPIC ";
-        function_header = "function_win.h";
+            "}\n"
+            "\n"
+            "#ifdef __cplusplus\n"
+            "}\n"
+            "#endif";
+        command = "g++ -std=c++17 -shared -o libFunction.so -fPIC ";
 #endif
     }
 };
