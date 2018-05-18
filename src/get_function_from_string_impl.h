@@ -17,7 +17,7 @@ public:
     GetFunctionFromStringImpl() = delete;
 
     template<typename RET_TYPE, typename ARG_TYPE, size_t DIM>
-    static std::function<RET_TYPE(std::array<ARG_TYPE, DIM>)> get_function_from_string(const std::string& str);
+    static std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> get_function_from_string(const std::string& str);
 
     static void set_settings(const FunctionFromStringSettings& settings);
     static FunctionFromStringSettings get_settings();
@@ -66,9 +66,9 @@ void GetFunctionFromStringImpl::create_source_file(const std::string& body)
 };
 
 template<typename RET_TYPE, typename ARG_TYPE, size_t DIM>
-std::function<RET_TYPE(std::array<ARG_TYPE, DIM>)> GetFunctionFromStringImpl::get_function_from_string(const std::string& str)
+std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> GetFunctionFromStringImpl::get_function_from_string(const std::string& str)
 {
-    std::function<RET_TYPE(std::array<ARG_TYPE, DIM>)> function;
+    std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> function;
 
     create_source_file<RET_TYPE, ARG_TYPE, DIM>(str);
     system((Settings.command + " " + Settings.function_source_filename).c_str());
@@ -78,37 +78,31 @@ std::function<RET_TYPE(std::array<ARG_TYPE, DIM>)> GetFunctionFromStringImpl::ge
 
 #elif __linux__
     void *handle;
-    RET_TYPE (*function_from_so)(const std::array<ARG_TYPE, DIM>&);
     char *error;
 
-    handle = dlopen("/home/oleg/MyProjects/math-function-from-string/tests/build/libFunction.so", RTLD_LAZY);
+    handle = dlopen("./libFunction.so", RTLD_LAZY);
     if (!handle)
     {
         fprintf(stderr, "%s\n", dlerror());
         throw(EXIT_FAILURE);
+        //TODO: catch this properly
     }
 
     dlerror();
-    *(void **) (&function_from_so) = dlsym(handle, "function");
+
+    using func_ptr = RET_TYPE (*)(const std::array<ARG_TYPE, DIM>&);
+    auto function_from_so = reinterpret_cast<func_ptr>(dlsym(handle, "function"));
 
     if ((error = dlerror()) != NULL)
     {
         fprintf(stderr, "%s\n", error);
         throw(EXIT_FAILURE);
+        //TODO: catch this properly
     }
 
-    printf("function_from_so: %f\n", (*function_from_so)(std::array<double, 1>{ 3.0 }));
-    dlclose(handle);
+    function = function_from_so;
 
-//    NOT RUNNING auto function1 = std::function<RET_TYPE(std::array<ARG_TYPE, DIM>)>(function_from_so);
-//    NOT COMPILING auto function1 = std::function<RET_TYPE(std::array<ARG_TYPE, DIM>)>(&function_from_so);
-//    auto function1  = static_cast<std::function<RET_TYPE(std::array<ARG_TYPE, DIM>)>>(*function_from_so);
-//    auto function1 = function_from_so;
-    std::function<RET_TYPE(std::array<ARG_TYPE, DIM>)> function1(*function_from_so);
-//    std::function<double(double)> function2(fun);
-    printf("std::function: %f\n", function1(std::array<double, 1>{ 3.0 }));
-//    printf("function: %f\n", function2(3));
-
+//    dlclose(handle);
 #endif
 
     return function;

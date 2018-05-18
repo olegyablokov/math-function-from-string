@@ -13,7 +13,7 @@ public:
     GetFunctionFromString() = delete;
 
     template<typename RET_TYPE, typename VAR_TYPE, size_t DIM>
-    static std::function<RET_TYPE(std::array<VAR_TYPE, DIM>)> get_function_from_string(const std::string& str);
+    static std::function<RET_TYPE(const std::array<VAR_TYPE, DIM>&)> get_function_from_string(const std::string& str);
 
     static void set_settings(const FunctionFromStringSettings& settings);
     static FunctionFromStringSettings get_settings();
@@ -34,7 +34,7 @@ FunctionFromStringSettings GetFunctionFromString::get_settings()
 }
 
 template<typename RET_TYPE, typename VAR_TYPE, size_t DIM>
-std::function<RET_TYPE(std::array<VAR_TYPE, DIM>)> GetFunctionFromString::get_function_from_string(const std::string& str)
+std::function<RET_TYPE(const std::array<VAR_TYPE, DIM>&)> GetFunctionFromString::get_function_from_string(const std::string& str)
 {
     return GetFunctionFromStringImpl::get_function_from_string<RET_TYPE, VAR_TYPE, DIM>(str);
 }
