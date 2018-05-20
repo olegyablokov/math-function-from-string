@@ -2,12 +2,12 @@ language: cpp
 compiler: g++
 os: linux
 before_install:
-        - mkdir build && cd tests && mkdir build;
+    - mkdir build && cd tests && mkdir build;
 script:
-        - cd build && cmake .. && make;
-        - cd ../tests/build && cmake .. && make && ./FunctionFromStringTest;
+    - cd build && cmake .. && make;
+    - cd ../tests/build && cmake .. && make && ./FunctionFromStringTest;
 notifications:
-        email:false
+    email:false
 branches:
-        only:
-                - configure_travis
+    only:
+        - develop
