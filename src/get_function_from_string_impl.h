@@ -72,7 +72,26 @@ std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> GetFunctionFromStringI
     std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> function;
 
     create_source_file<RET_TYPE, ARG_TYPE, DIM>(str);
-    system((Settings.command + " " + Settings.function_source_filename).c_str());
+
+    // create lib_filename:
+    std::string lib_filename = Settings.lib_filename;
+    int n = 0;
+    std::string temp = lib_filename;
+    while(file_exist(temp))
+    {
+        ++n;
+        temp = replace_substring(lib_filename, ".", std::to_string(n) + ".");
+    }
+    lib_filename = temp;
+    Settings.lib_filename = temp;
+
+    // create command:
+    std::string command = Settings.command;
+    command = replace_substring(command, "<function_source_filename>", Settings.function_source_filename);
+    command = replace_substring(command, "<lib_filename>", lib_filename);
+
+    // execute command:
+    system(command.c_str());
 
 #ifdef _WIN32
     //TODO: implement this
@@ -82,7 +101,7 @@ std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> GetFunctionFromStringI
     void *handle;
     char *error;
 
-    handle = dlopen("./libFunction.so", RTLD_LAZY);
+    handle = dlopen(std::string("./" + lib_filename).c_str(), RTLD_LAZY);
     if (!handle)
     {
         fprintf(stderr, "%s\n", dlerror());
