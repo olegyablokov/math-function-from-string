@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../function_from_string_settings.h"
 #include "utility.h"
 #include <functional>
@@ -75,6 +76,7 @@ std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> GetFunctionFromStringI
 
 #ifdef _WIN32
     //TODO: implement this
+    throw("Not implemented for windows");
 
 #elif __linux__
     void *handle;
@@ -105,6 +107,12 @@ std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> GetFunctionFromStringI
 //    dlclose(handle);
 #endif
 
+    // delete file:
+    if(std::remove(Settings.function_source_filename.c_str()) != 0 )
+    {
+        //TODO: catch this properly
+        throw(std::string("Couldn't delete file") + Settings.function_source_filename);
+    }
     return function;
 }
 
