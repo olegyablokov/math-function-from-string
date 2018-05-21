@@ -13,14 +13,13 @@ inline bool file_exist(const std::string& name)
 
 std::string replace_substring(const std::string& str, const std::string& prev_substr, const std::string& new_substr)
 {
-    std::string ret_str = str;
-    size_t index = 0;
-    while (true)
+    std::string return_str = str;
+    if(prev_substr.empty()) return return_str;
+    size_t start_pos = 0;
+    while((start_pos = str.find(prev_substr, start_pos)) != std::string::npos)
     {
-        index = ret_str.find(prev_substr);
-        if (index != std::string::npos) ret_str.replace(index, prev_substr.size(), new_substr);
-        else break;
+        return_str .replace(start_pos, prev_substr.length(), new_substr);
+        start_pos += new_substr.length(); // In case 'new_substr' contains 'prev_substr', like replacing 'x' with 'yx'
     }
-
-    return ret_str;
+    return return_str;
 }
