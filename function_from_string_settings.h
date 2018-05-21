@@ -2,6 +2,9 @@
 #include <string>
 
 
+/**
+ * @brief A class for storing settings for GetFunctionFromString.
+ */
 struct FunctionFromStringSettings
 {
     std::string command;

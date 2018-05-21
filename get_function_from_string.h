@@ -13,28 +13,20 @@ public:
     GetFunctionFromString() = delete;
 
     template<typename RET_TYPE, typename VAR_TYPE, size_t DIM>
-    static std::function<RET_TYPE(const std::array<VAR_TYPE, DIM>&)> get_function_from_string(const std::string& str);
-
-    static void set_settings(const FunctionFromStringSettings& settings);
-    static FunctionFromStringSettings get_settings();
+    static std::function<RET_TYPE(const std::array<VAR_TYPE, DIM>&)> get_function_from_string(const std::string& str,
+                                                                                              FunctionFromStringSettings& settings);
 };
 
 
 
 
 
-void GetFunctionFromString::set_settings(const FunctionFromStringSettings& settings)
-{
-    GetFunctionFromStringImpl::set_settings(settings);
-}
 
-FunctionFromStringSettings GetFunctionFromString::get_settings()
-{
-    return GetFunctionFromStringImpl::get_settings();
-}
+
 
 template<typename RET_TYPE, typename VAR_TYPE, size_t DIM>
-std::function<RET_TYPE(const std::array<VAR_TYPE, DIM>&)> GetFunctionFromString::get_function_from_string(const std::string& str)
+std::function<RET_TYPE(const std::array<VAR_TYPE, DIM>&)> GetFunctionFromString::get_function_from_string(const std::string& str,
+                                                                                                          FunctionFromStringSettings& settings)
 {
-    return GetFunctionFromStringImpl::get_function_from_string<RET_TYPE, VAR_TYPE, DIM>(str);
+    return GetFunctionFromStringImpl::get_function_from_string<RET_TYPE, VAR_TYPE, DIM>(str, settings);
 }
