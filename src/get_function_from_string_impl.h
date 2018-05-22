@@ -23,12 +23,13 @@ public:
 
 private:
     template<typename RET_TYPE, typename ARG_TYPE, size_t DIM>
-    static void create_source_file(const std::string& body, FunctionFromStringSettings& settings);
+    static std::string create_source_file(const std::string& body, const FunctionFromStringSettings& settings);
+    static int n;
 };
 
 
 template<typename RET_TYPE, typename ARG_TYPE, size_t DIM>
-void GetFunctionFromStringImpl::create_source_file(const std::string& body, FunctionFromStringSettings& settings)
+std::string GetFunctionFromStringImpl::create_source_file(const std::string& body, const FunctionFromStringSettings& settings)
 {
     std::string source_code = settings.function_source_code;
 
@@ -40,25 +41,25 @@ void GetFunctionFromStringImpl::create_source_file(const std::string& body, Func
     source_code = replace_substring(source_code, "ARG_TYPE", name_val_type);
     source_code = replace_substring(source_code, "DIM", name_dim);
     source_code = replace_substring(source_code, "BODY", body);
+    source_code = replace_substring(source_code, "FUNCTION_NAME", settings.function_name);
 
     std::ofstream file;
     file.open(settings.function_source_filename);
     file << source_code;
     file.close();
+    return source_code;
 };
 
 template<typename RET_TYPE, typename ARG_TYPE, size_t DIM>
 std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> GetFunctionFromStringImpl::get_function_from_string(const std::string& str,
                                                                                                               FunctionFromStringSettings& settings)
 {
+//    int prev_n = n;
     std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> function;
-
-    create_source_file<RET_TYPE, ARG_TYPE, DIM>(str, settings);
 
     // create lib_filename:
     std::string lib_filename = settings.lib_filename;
-    int n = 0;
-    std::string temp = lib_filename;
+    std::string temp = replace_substring(lib_filename, ".", std::to_string(n) + ".");
     while(file_exist(temp))
     {
         ++n;
@@ -66,6 +67,11 @@ std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> GetFunctionFromStringI
     }
     lib_filename = temp;
     settings.lib_filename = temp;
+
+    // create function_name:
+    settings.function_name += std::to_string(n);
+
+    settings.function_source_code = create_source_file<RET_TYPE, ARG_TYPE, DIM>(str, settings);
 
     // create command:
     std::string command = settings.command;
@@ -94,7 +100,7 @@ std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> GetFunctionFromStringI
     dlerror();
 
     using func_ptr = RET_TYPE (*)(const std::array<ARG_TYPE, DIM>&);
-    auto function_from_so = reinterpret_cast<func_ptr>(dlsym(handle, "function"));
+    auto function_from_so = reinterpret_cast<func_ptr>(dlsym(handle, settings.function_name.c_str()));
 
     if ((error = dlerror()) != NULL)
     {
@@ -104,6 +110,7 @@ std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> GetFunctionFromStringI
     }
 
     function = function_from_so;
+    settings.handle = handle;
 
 //    dlclose(handle);
 #endif
@@ -114,5 +121,8 @@ std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> GetFunctionFromStringI
         //TODO: catch this properly
         throw(std::string("Couldn't delete file") + settings.function_source_filename);
     }
+
+//    if (prev_n == n) ++n;
+    ++n;
     return function;
 }

@@ -13,18 +13,28 @@ struct FunctionFromStringSettings
 
     /**
      * Filename of the target linked library.
-     * Note that if the file with this filename exists and is used for linking, the actual filename will be augmented with an ordinal number, e.g. "libFunction3.so".
+     * Note that if the file with this filename exists and is used for linking, the actual filename will be augmented with an ordinal number, e.g. "libFunction3.so" (to avoid collisions).
      * If the previous condition is true, the lib_filename variable is changed to the augmented one.
      */
     std::string lib_filename;
+
+    /**
+     * Function name of the target library function.
+     * Note that the actual name will be augmented with the lib_filename's ordinal number, e.g. "function3" (to avoid collisions).
+     * If the previous condition is true, the function_name variable is changed to the augmented one.
+     */
+    std::string function_name;
 
     std::string RET_TYPE;                   /**< Initialize it explicitly if compilation fails. */
     std::string ARG_TYPE;                   /**< Initialize it explicitly if compilation fails. */
     std::string DIM;                        /**< Initialize it explicitly if compilation fails. */
 
+    void *handle = nullptr;                 /**< Handle for library. If you want to manually close the library, call dlclose(handle); */
+
     FunctionFromStringSettings()
     {
         function_source_filename = "function.cpp";
+        function_name = "function";
 
 #ifdef _WIN32
         lib_filename = "libFunction.dll";
@@ -52,7 +62,7 @@ struct FunctionFromStringSettings
             "extern \"C\" {\n"
             "#endif\n"
             ""
-            "RET_TYPE function(const std::array<ARG_TYPE, DIM>& arg)\n"
+            "RET_TYPE FUNCTION_NAME(const std::array<ARG_TYPE, DIM>& arg)\n"
             "{\n"
             "    return BODY;\n"
             "}\n"

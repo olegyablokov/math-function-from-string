@@ -18,7 +18,7 @@ public:
 
     template<typename RET_TYPE, typename VAR_TYPE, size_t DIM>
     inline static std::function<RET_TYPE(const std::array<VAR_TYPE, DIM>&)> get_function_from_string(const std::string& str,
-                                                                                              FunctionFromStringSettings& settings);
+                                                                                                     FunctionFromStringSettings& settings);
 };
 
 

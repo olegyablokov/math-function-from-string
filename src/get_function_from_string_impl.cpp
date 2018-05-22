@@ -1,6 +1,8 @@
 #include "get_function_from_string_impl.h"
 
 
+int GetFunctionFromStringImpl::n = 0;
+
 
 
 
