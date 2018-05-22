@@ -7,7 +7,7 @@
  */
 struct FunctionFromStringSettings
 {
-    std::string command;
+    std::string command;                    /**< The command which will be executed for compiling a function. */
     std::string function_source_filename;
     std::string function_source_code;
 

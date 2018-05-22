@@ -11,7 +11,7 @@ inline bool file_exist(const std::string& name)
     return (stat (name.c_str(), &buffer) == 0);
 }
 
-std::string replace_substring(const std::string& str, const std::string& prev_substr, const std::string& new_substr)
+inline std::string replace_substring(const std::string& str, const std::string& prev_substr, const std::string& new_substr)
 {
     std::string return_str = str;
     if(prev_substr.empty()) return return_str;
