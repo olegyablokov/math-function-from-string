@@ -1,13 +1,14 @@
 language: cpp
 compiler: g++
 os: linux
-before_install:
-    - mkdir build && cd tests && mkdir build;
+install:
+    - ./build.sh 
 script:
-    - cd build && cmake .. && make;
-    - cd ../tests/build && cmake .. && make && ./FunctionFromStringTest;
+    - cd tests/build && ./FunctionFromStringTest
 notifications:
-    email:false
+    email:true
 branches:
     only:
         - develop
+        - master
+        - configure_travis
