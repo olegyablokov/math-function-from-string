@@ -70,7 +70,7 @@ struct FunctionFromStringSettings
             "#ifdef __cplusplus\n"
             "}\n"
             "#endif";
-        command = "g++ -std=c++14 -shared -o <lib_filename> -fPIC <function_source_filename>";
+        command = "g++ -shared -o <lib_filename> -fPIC <function_source_filename>";
 #endif
     }
 };
