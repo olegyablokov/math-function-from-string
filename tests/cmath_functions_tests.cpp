@@ -16,7 +16,6 @@ TEST_CASE("Function works with cmath functions", "[cmath]" )
     CHECK(function_sin(std::array<double, 1>{M_PI / 2}) == Approx(1));
     CHECK(function_sin(std::array<double, 1>{M_PI}) == Approx(0));
 
-    // clear the working directory
-    if (file_exist(settings.lib_filename)) system((std::string("rm ") + settings.lib_filename).c_str());
-    if (file_exist(settings.function_source_filename)) system((std::string("rm ") + settings.function_source_filename).c_str());
+    delete_file(settings.lib_filename);
+    delete_file(settings.function_source_filename);
 }

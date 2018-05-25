@@ -19,9 +19,8 @@ TEST_CASE("Function works with simple 1-dim expression", "[get-function-from-str
     CHECK(function(std::array<double, 1>{-1}) == Approx(-2));
     CHECK(function(std::array<double, 1>{1.4}) == Approx(2.8));
 
-    // clear the working directory
-    if (file_exist(settings.lib_filename)) system((std::string("rm ") + settings.lib_filename).c_str());
-    if (file_exist(settings.function_source_filename)) system((std::string("rm ") + settings.function_source_filename).c_str());
+    delete_file(settings.lib_filename);
+    delete_file(settings.function_source_filename);
 }
 
 TEST_CASE("Function works with simple N-dim expression", "[get-function-from-string]")
@@ -38,9 +37,8 @@ TEST_CASE("Function works with simple N-dim expression", "[get-function-from-str
     CHECK(function(std::array<double, 3>{1, 1, 2}) == Approx(4));
     CHECK(function(std::array<double, 3>{2, -1.9, 1000}) == Approx(1000.1));
 
-    // clear the working directory
-    if (file_exist(settings.lib_filename)) system((std::string("rm ") + settings.lib_filename).c_str());
-    if (file_exist(settings.function_source_filename)) system((std::string("rm ") + settings.function_source_filename).c_str());
+    delete_file(settings.lib_filename);
+    delete_file(settings.function_source_filename);
 }
 
 TEST_CASE("Files created with proper names and deleted", "[get-function-from-string]")
@@ -56,7 +54,6 @@ TEST_CASE("Files created with proper names and deleted", "[get-function-from-str
 
     CHECK(!file_exist("test_function.cpp"));
 
-    // clear the working directory
-    if (file_exist(settings.lib_filename)) system((std::string("rm ") + settings.lib_filename).c_str());
-    if (file_exist(settings.function_source_filename)) system((std::string("rm ") + settings.function_source_filename).c_str());
+    delete_file(settings.lib_filename);
+    delete_file(settings.function_source_filename);
 }

@@ -42,13 +42,21 @@ struct FunctionFromStringSettings
             "#include <array>\n"
             "#include <functional>\n"
             "#include <cmath>\n"
-            "\n"
-            "extern RET_TYPE fun(const std::array<ARG_TYPE, DIM>& arg)\n"
+            "\n\n"
+            "using namespace std;\n\n"
+            "#ifdef __cplusplus\n"
+            "extern \"C\" {\n"
+            "#endif\n"
+            ""
+            "RET_TYPE __declspec(dllexport) FUNCTION_NAME(const std::array<ARG_TYPE, DIM>& arg)\n"
             "{\n"
             "    return BODY;\n"
-            "}";
-        command = "\"gcc -std=c++17 -shared -o libFunction.so -fPIC ";
-        function_header = "function_linux.h";
+            "}\n"
+            "\n"
+            "#ifdef __cplusplus\n"
+            "}\n"
+            "#endif";
+        command = "\"g++ -std=c++14 -c -DBUILDING_EXAMPLE_DLL <function_source_filename> && g++ -std=c++14 -shared -o <lib_filename> function.o";
 
 #elif __linux__
         lib_filename = "libFunction.so";
@@ -57,7 +65,7 @@ struct FunctionFromStringSettings
             "#include <functional>\n"
             "#include <cmath>\n"
             "\n\n"
-            "using namespace std;\n"
+            "using namespace std;\n\n"
             "#ifdef __cplusplus\n"
             "extern \"C\" {\n"
             "#endif\n"

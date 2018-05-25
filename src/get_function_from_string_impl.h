@@ -7,7 +7,9 @@
 #include <fstream>
 #include <array>
 
-#ifdef __linux__
+#ifdef _WIN32
+#include <windows.h>
+#elif __linux__
 #include <dlfcn.h>
 #endif
 
@@ -54,7 +56,7 @@ template<typename RET_TYPE, typename ARG_TYPE, size_t DIM>
 std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> GetFunctionFromStringImpl::get_function_from_string(const std::string& str,
                                                                                                               FunctionFromStringSettings& settings)
 {
-//    int prev_n = n;
+    using func_ptr = RET_TYPE (*)(const std::array<ARG_TYPE, DIM>&);
     std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> function;
 
     // create lib_filename:
@@ -82,8 +84,20 @@ std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> GetFunctionFromStringI
     system(command.c_str());
 
 #ifdef _WIN32
-    //TODO: implement this
-    throw("Not implemented for windows");
+    HINSTANCE h_function_DLL = LoadLibrary(settings.lib_filename.c_str());
+    if (!h_function_DLL )
+    {
+        DWORD error = GetLastError();
+        throw(std::logic_error("Couldn't load library. Error code: " + error));
+    }
+
+    auto function_ptr = reinterpret_cast<func_ptr>(GetProcAddress(GetModuleHandle(TEXT(settings.lib_filename.c_str())), settings.function_name.c_str()));
+    if (!function_ptr)
+    {
+        DWORD error = GetLastError();
+        throw(std::logic_error("Couldn't load function from library. Error code: " + error));
+    }
+    function = function_ptr;
 
 #elif __linux__
     void *handle;
@@ -99,7 +113,6 @@ std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> GetFunctionFromStringI
 
     dlerror();
 
-    using func_ptr = RET_TYPE (*)(const std::array<ARG_TYPE, DIM>&);
     auto function_from_so = reinterpret_cast<func_ptr>(dlsym(handle, settings.function_name.c_str()));
 
     if ((error = dlerror()) != NULL)
@@ -115,14 +128,8 @@ std::function<RET_TYPE(const std::array<ARG_TYPE, DIM>&)> GetFunctionFromStringI
 //    dlclose(handle);
 #endif
 
-    // delete file:
-    if(std::remove(settings.function_source_filename.c_str()) != 0 )
-    {
-        //TODO: catch this properly
-        throw(std::string("Couldn't delete file") + settings.function_source_filename);
-    }
-
-//    if (prev_n == n) ++n;
+    delete_file(settings.function_source_filename);
     ++n;
+
     return function;
 }
